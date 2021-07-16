@@ -1,2 +1,2 @@
-SolastaTestMod/&FancySkeletonTitle	Fancy Skeleton
+SolastaTestMod/&FancySkeletonTitle	Fancy Skeletony
 SolastaTestMod/&FancySkeletonDescription	I'm a fancy skeleton

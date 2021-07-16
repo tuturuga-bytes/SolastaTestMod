@@ -3,12 +3,16 @@ using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using UnityModManagerNet;
+using HarmonyLib;
 using SolastaModApi;
 using ModKit;
 using ModKit.Utility;
 
 namespace SolastaTestMod
 {
+    #if DEBUG
+    [EnableReloading]
+    #endif
     public static class Main
     {
         public static readonly string MOD_FOLDER = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
@@ -27,12 +31,17 @@ namespace SolastaTestMod
         {
             try
             {
-                Logger = modEntry.Logger;
 
+                Logger = modEntry.Logger;
+                var harmony = new Harmony(modEntry.Info.Id);
+                harmony.PatchAll(Assembly.GetExecutingAssembly());
+                #if DEBUG
+                modEntry.OnUnload = Unload;
+                #endif
                 Mod = new ModManager<Core, Settings>();
                 Menu = new MenuManager();
                 modEntry.OnToggle = OnToggle;
-
+ 
                 Translations.Load(MOD_FOLDER);
             }
             catch (Exception ex)
@@ -43,7 +52,15 @@ namespace SolastaTestMod
 
             return true;
         }
+        #if DEBUG
+        static bool Unload(UnityModManager.ModEntry modEntry)
+        {
+            var harmony = new Harmony(modEntry.Info.Id);
+            harmony.UnpatchAll();
 
+            return true;
+        }
+        #endif
         static bool OnToggle(UnityModManager.ModEntry modEntry, bool enabled)
         {
             if (enabled)
